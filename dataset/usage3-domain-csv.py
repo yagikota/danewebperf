@@ -13,7 +13,7 @@ def export_domain_by_usage_to_csv(df, csv_path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        prog='usage3_domain_csv',
+        prog='usage3-domain-csv',
         description='Export domain that has TLSA record with usage 3'
     )
     parser.add_argument('-in', '--input_csv', type=str, help='The input csv file path')

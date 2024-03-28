@@ -12,3 +12,4 @@ if response.status_code == 200:
     html_filename = f"hall-of-flame-websites-{current_time.year}-{current_time.month:02d}-{current_time.day:02d}-{current_time.hour:02d}-{current_time.minute:02d}-{current_time.second:02d}.html"
     with open(html_filename, "w", encoding="utf-8") as f:
         f.write(response.text)
+    print(html_filename)

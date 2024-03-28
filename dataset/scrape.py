@@ -23,9 +23,12 @@ def export_csv(result: list, filename: str) -> None:
         writer.writerows(result)
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input_html', help="Path to the HTML file to be parsed.")
-    parser.add_argument('--output_csv', help="Path to the CSV file to be exported.")
+    parser = argparse.ArgumentParser(
+        prog='scrape',
+        description='Scrape the list of websites from the given HTML file. If the input HTML file is not provided, this program will scrape the website(https://internet.nl/halloffame/web/) directly.'
+    )
+    parser.add_argument('-in', '--input_html', help="Path to the HTML file to be parsed.")
+    parser.add_argument('-out', '--output_csv', help="Path to the CSV file to be exported.")
     args = parser.parse_args()
 
     print("Current time: ", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
@@ -51,15 +54,6 @@ def main():
                 result.append([domain])
 
     export_csv(result, args.output_csv)
-
-
-# How to run
-
-# 1. When scraping from a website (it takes a little time)
-# python3 scrape.py --output_csv=hall-of-flame-websites.csv
-
-# 2. When scraping from a HTML file
-# python3 scrape.py --input_html=hall-of-flame-websites-2023-10-27-00-14-00.html --output_csv=hall-of-flame-websites.csv
 
 if __name__ == '__main__':
     main()
