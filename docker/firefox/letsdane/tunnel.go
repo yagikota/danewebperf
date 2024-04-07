@@ -4,10 +4,8 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
-	"github.com/buffrr/letsdane/proxy"
-	"github.com/buffrr/letsdane/resolver"
-	"github.com/miekg/dns"
 	"html"
 	"io"
 	"log"
@@ -16,9 +14,15 @@ import (
 	"net/http/httputil"
 	"strconv"
 	"time"
+
+	"github.com/buffrr/letsdane/proxy"
+	"github.com/buffrr/letsdane/resolver"
+	"github.com/miekg/dns"
 )
 
 var (
+	DANEValidationResults = make(DANEValidationResultSlice, 0)
+
 	// Version the current version
 	Version = "(untracked dev)"
 )
@@ -54,16 +58,19 @@ func (h *tunneler) Tunnel(ctx context.Context, clientConn *proxy.Conn, network, 
 	addrs, tlsa, err := h.dialer.resolveDANE(ctx, network, addr, h.constraints)
 	if err == errBadHost {
 		h.warnf("bad host", http.StatusBadRequest, addr)
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 		clientConn.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if err != nil {
 		h.warnf("%v", http.StatusBadGateway, addr, err)
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 		clientConn.WriteHeader(http.StatusBadGateway)
 		return
 	}
 	if len(addrs.IPs) == 0 {
 		h.warnf("no such host", http.StatusBadGateway, addr)
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 		clientConn.WriteHeader(http.StatusBadGateway)
 		return
 	}
@@ -75,11 +82,13 @@ func (h *tunneler) Tunnel(ctx context.Context, clientConn *proxy.Conn, network, 
 		remote, err := h.dialer.dialAddrList(ctx, network, addrs)
 		if err != nil {
 			h.warnf("dial remote host failed: %v", http.StatusBadGateway, addr, err)
+			DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 			clientConn.WriteHeader(http.StatusBadGateway)
 			return
 		}
 
 		h.logf("tunnel established %s", http.StatusOK, addr, remote.RemoteAddr().String())
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: errors.New("tunnel established without DANE validation")})
 		clientConn.WriteHeader(http.StatusOK)
 		clientConn.Copy(remote)
 		return
@@ -89,6 +98,7 @@ func (h *tunneler) Tunnel(ctx context.Context, clientConn *proxy.Conn, network, 
 	clientConn.WriteHeader(http.StatusOK)
 	hello, err := clientConn.PeekClientHello()
 	if err != nil {
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 		if err == io.EOF {
 			return
 		}
@@ -99,6 +109,7 @@ func (h *tunneler) Tunnel(ctx context.Context, clientConn *proxy.Conn, network, 
 	tlsaDomain := addrs.Host
 	if tlsaDomain != hello.ServerName {
 		h.warnf("client sni `%s` does not match tlsa domain `%s`", statusErr, addr, hello.ServerName, tlsaDomain)
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 		return
 	}
 
@@ -111,10 +122,12 @@ func (h *tunneler) Tunnel(ctx context.Context, clientConn *proxy.Conn, network, 
 
 	remote, err := h.dialer.dialTLSContext(ctx, network, addrs, daneConfig)
 	if _, ok := err.(*tlsError); ok {
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 		terminateTLSHandshake(clientConn)
 	}
 	if err != nil {
 		h.warnf("dial remote host failed: %v", statusErr, addr, err)
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 		return
 	}
 	defer remote.Close()
@@ -130,6 +143,7 @@ func (h *tunneler) Tunnel(ctx context.Context, clientConn *proxy.Conn, network, 
 
 	clientTLS := tls.Server(clientConn, clientTLSConfig)
 	if err := clientTLS.Handshake(); err != nil {
+		DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: false, Err: err})
 		if err == io.EOF {
 			return
 		}
@@ -138,6 +152,7 @@ func (h *tunneler) Tunnel(ctx context.Context, clientConn *proxy.Conn, network, 
 	}
 
 	h.logf("dane tunnel established %s", http.StatusOK, addr, remote.RemoteAddr().String())
+	DANEValidationResults = append(DANEValidationResults, DANEValidationResult{Host: addrs.Host, IsDANEValidated: true, Err: nil})
 	copyConn(clientTLS, remote)
 }
 
