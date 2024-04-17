@@ -215,7 +215,7 @@ func runUnboundContainer(opts *commandOptions) error {
 // original command: docker run --rm --network=[network name] --name [container name] -d [image name] -verbose -r [resolver ip] -cert /root/.letsdane/cert.crt -key /root/.letsdane/cert.key
 func runLetsdaneContainer(opts *commandOptions) error {
 	dockerCmd := []string{"docker", "run", "--network", opts.LetsdaneDockerRunOpts.NetWork, "--name", opts.LetsdaneDockerRunOpts.ContainerName, "-d", opts.LetsdaneDockerRunOpts.ImageName}
-	letsdaneCmd := []string{"-verbose", "-r", opts.LetsdaneOptions.ResolverIP, "-cert", "/root/.letsdane/cert.crt", "-key", "/root/.letsdane/cert.key"}
+	letsdaneCmd := []string{"-verbose", "-r", opts.LetsdaneOptions.ResolverIP, "-cert", "/root/.letsdane/cert.crt", "-key", "/root/.letsdane/cert.key", "-skip-dnssec"}
 	cmd := exec.Command(dockerCmd[0], append(dockerCmd[1:], letsdaneCmd...)...)
 	logger.Info(fmt.Sprintf("command: %s", cmd.String()))
 

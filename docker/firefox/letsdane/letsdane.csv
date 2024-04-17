@@ -1,0 +1,6 @@
+Host,DANE Validated,Error
+internet.nl,false,tunnel established without DANE validation
+matomo.internet.nl,false,tunnel established without DANE validation
+push.services.mozilla.com,false,tunnel established without DANE validation
+push.services.mozilla.com,false,tunnel established without DANE validation
+incoming.telemetry.mozilla.org,false,tunnel established without DANE validation

@@ -3,10 +3,9 @@ package letsdane
 import (
 	"encoding/csv"
 	"io"
-	"log"
 )
 
-type DANEValidationResultSlice []DANEValidationResult
+var DANEValidationResultsChan = make(chan DANEValidationResult, 1)
 
 type DANEValidationResult struct {
 	Host            string
@@ -14,26 +13,24 @@ type DANEValidationResult struct {
 	Err             error
 }
 
-func ExportAsCSV(results DANEValidationResultSlice, w io.Writer) error {
-
-	log.Println("results: ", results)
-
-	if len(results) == 0 {
-		log.Println("No results to export")
-		return nil
-	}
-
+func writeEachLine(line []string, w io.Writer) error {
 	csvWriter := csv.NewWriter(w)
 	defer csvWriter.Flush()
+	if err := csvWriter.Write(line); err != nil {
+		return err
+	}
+	return nil
+}
 
-	if err := csvWriter.Write([]string{"Host", "DANEValidated", "Error"}); err != nil {
+func WriteToCSV(resultChan <-chan DANEValidationResult, w io.Writer) error {
+
+	if err := writeEachLine([]string{"Host", "DANE Validated", "Error"}, w); err != nil {
 		return err
 	}
 
-	log.Println(len(results), "results to export")
-
-	for _, result := range results {
-		var daneValidated string
+	var daneValidated string
+	// log.Println(<-resultChan)
+	for result := range resultChan {
 		if result.IsDANEValidated {
 			daneValidated = "true"
 		} else {
@@ -41,16 +38,15 @@ func ExportAsCSV(results DANEValidationResultSlice, w io.Writer) error {
 		}
 
 		if result.Err != nil {
-			if err := csvWriter.Write([]string{result.Host, daneValidated, result.Err.Error()}); err != nil {
+			if err := writeEachLine([]string{result.Host, daneValidated, result.Err.Error()}, w); err != nil {
 				return err
 			}
 			continue
 		}
 
-		if err := csvWriter.Write([]string{result.Host, daneValidated, ""}); err != nil {
+		if err := writeEachLine([]string{result.Host, daneValidated, ""}, w); err != nil {
 			return err
 		}
-
 	}
 
 	return nil

@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
@@ -14,10 +13,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/signal"
 	"path"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/buffrr/hsig0"
@@ -334,26 +331,15 @@ func main() {
 	}
 	server := &http.Server{Addr: *addr, Handler: handler}
 
-	// Create context that listens for the interrupt signal from the OS.
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGKILL)
-	defer stop()
-
 	go func() {
-		<-ctx.Done()
-
-		// export DANE validation results of the session to a csv file after the session ends.
 		exportedFile := "letsdane.csv"
 		file, err := os.Create(exportedFile)
 		if err != nil {
 			log.Fatalf("failed to create export file: %v", err)
 		}
-		log.Println(letsdane.DANEValidationResults)
-		if err := letsdane.ExportAsCSV(letsdane.DANEValidationResults, file); err != nil {
-			log.Fatalf("failed to export DANE validation results: %v", err)
+		if err := letsdane.WriteToCSV(letsdane.DANEValidationResultsChan, file); err != nil {
+			log.Fatalf("failed to write to export file: %v", err)
 		}
-
-		log.Println("Shutting down")
-		server.Shutdown(ctx)
 	}()
 
 	log.Printf("Listening on %s", *addr)
