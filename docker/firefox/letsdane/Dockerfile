@@ -2,7 +2,7 @@ FROM golang:alpine AS builder
 RUN apk add --no-cache unbound-dev build-base
 COPY . /dane
 WORKDIR /dane/cmd/letsdane
-RUN go build -tags unbound
+RUN go build -o letsdane -tags unbound
 
 FROM alpine:latest
 RUN apk add --no-cache unbound-libs

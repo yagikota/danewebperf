@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -324,6 +325,23 @@ func main() {
 		Verbose:        *verbose,
 	}
 
+	handler, err := c.NewHandler()
+	if err != nil {
+		log.Fatalf("failed to create handler: %v", err)
+	}
+	server := &http.Server{Addr: *addr, Handler: handler}
+
+	go func() {
+		exportedFile := "letsdane.csv"
+		file, err := os.Create(exportedFile)
+		if err != nil {
+			log.Fatalf("failed to create export file: %v", err)
+		}
+		if err := letsdane.WriteToCSV(letsdane.DANEValidationResultsChan, file); err != nil {
+			log.Fatalf("failed to write to export file: %v", err)
+		}
+	}()
+
 	log.Printf("Listening on %s", *addr)
-	log.Fatal(c.Run(*addr))
+	log.Fatal(server.ListenAndServe())
 }

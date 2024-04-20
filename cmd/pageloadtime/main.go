@@ -40,6 +40,9 @@ const (
 	unboundPcapFilePath  = "/captured/unbound.pcap"
 	letsdanePcapFilePath = "/captured/letsdane.pcap"
 
+	// DANE validation result file path in the docker container
+	letsdaneDANEValidationResultFilePath = "/dane/cmd/letsdane/result.csv"
+
 	// Measurement patterns
 	withoutCacheWithoutDane measurementPattern = "without-cache-without-dane" // No cache, no DANE
 	withCacheWithoutDane    measurementPattern = "with-cache-without-dane"    // Cache enabled, no DANE
@@ -101,25 +104,39 @@ func newPcapOptions(resultDirPath, pcapSuffix string) *PcapOptions {
 	}
 }
 
-type commandOptions struct {
-	LetsdaneDockerRunOpts *dockerRunOptions
-	LetsdaneOptions       *LetsdaneOptions
-	HARDockerRunOpts      *dockerRunOptions
-	HAROpts               *fireFoxHAROptions
-	UnboundDockerRunOpts  *dockerRunOptions
-	PcapOpts              *PcapOptions
-	Cache                 bool
+type DANEValidationResultOpts struct {
+	ResultDirPath    string
+	ResultFileSuffix string
 }
 
-func newCommandOptions(letsdaneDockerRunOpts *dockerRunOptions, letsdaneOpts *LetsdaneOptions, HARDockerRunOpts *dockerRunOptions, HAROpts *fireFoxHAROptions, unboundDockerOpts *dockerRunOptions, pcapOpts *PcapOptions, cache bool) *commandOptions {
+func NewDANEValidationResultOpts(resultDirPath, resultFileSuffix string) *DANEValidationResultOpts {
+	return &DANEValidationResultOpts{
+		ResultDirPath:    resultDirPath,
+		ResultFileSuffix: resultFileSuffix,
+	}
+}
+
+type commandOptions struct {
+	LetsdaneDockerRunOpts    *dockerRunOptions
+	LetsdaneOptions          *LetsdaneOptions
+	HARDockerRunOpts         *dockerRunOptions
+	HAROpts                  *fireFoxHAROptions
+	UnboundDockerRunOpts     *dockerRunOptions
+	PcapOpts                 *PcapOptions
+	DANEValidationResultOpts *DANEValidationResultOpts
+	Cache                    bool
+}
+
+func newCommandOptions(letsdaneDockerRunOpts *dockerRunOptions, letsdaneOpts *LetsdaneOptions, HARDockerRunOpts *dockerRunOptions, HAROpts *fireFoxHAROptions, unboundDockerOpts *dockerRunOptions, pcapOpts *PcapOptions, DANEValidationResultOpts *DANEValidationResultOpts, cache bool) *commandOptions {
 	return &commandOptions{
-		LetsdaneDockerRunOpts: letsdaneDockerRunOpts,
-		LetsdaneOptions:       letsdaneOpts,
-		HARDockerRunOpts:      HARDockerRunOpts,
-		HAROpts:               HAROpts,
-		UnboundDockerRunOpts:  unboundDockerOpts,
-		PcapOpts:              pcapOpts,
-		Cache:                 cache,
+		LetsdaneDockerRunOpts:    letsdaneDockerRunOpts,
+		LetsdaneOptions:          letsdaneOpts,
+		HARDockerRunOpts:         HARDockerRunOpts,
+		HAROpts:                  HAROpts,
+		UnboundDockerRunOpts:     unboundDockerOpts,
+		PcapOpts:                 pcapOpts,
+		DANEValidationResultOpts: DANEValidationResultOpts,
+		Cache:                    cache,
 	}
 }
 
@@ -215,7 +232,7 @@ func runUnboundContainer(opts *commandOptions) error {
 // original command: docker run --rm --network=[network name] --name [container name] -d [image name] -verbose -r [resolver ip] -cert /root/.letsdane/cert.crt -key /root/.letsdane/cert.key
 func runLetsdaneContainer(opts *commandOptions) error {
 	dockerCmd := []string{"docker", "run", "--network", opts.LetsdaneDockerRunOpts.NetWork, "--name", opts.LetsdaneDockerRunOpts.ContainerName, "-d", opts.LetsdaneDockerRunOpts.ImageName}
-	letsdaneCmd := []string{"-verbose", "-r", opts.LetsdaneOptions.ResolverIP, "-cert", "/root/.letsdane/cert.crt", "-key", "/root/.letsdane/cert.key"}
+	letsdaneCmd := []string{"-verbose", "-r", opts.LetsdaneOptions.ResolverIP, "-cert", "/root/.letsdane/cert.crt", "-key", "/root/.letsdane/cert.key", "-skip-dnssec"}
 	cmd := exec.Command(dockerCmd[0], append(dockerCmd[1:], letsdaneCmd...)...)
 	logger.Info(fmt.Sprintf("command: %s", cmd.String()))
 
@@ -481,6 +498,13 @@ func collectHAR(opts *commandOptions) ([]byte, error) {
 				logger.Error(fmt.Sprintf("Failed to copy pcap file: %s", err))
 			}
 		}()
+		defer func() {
+			outputFileName := "letsdane" + opts.DANEValidationResultOpts.ResultFileSuffix + ".csv"
+			logger.Info(fmt.Sprintf("copy DANE validation result file: %s", outputFileName))
+			if err := dockerCopy(opts.LetsdaneDockerRunOpts.ContainerName, letsdaneDANEValidationResultFilePath, filepath.Join("./", opts.DANEValidationResultOpts.ResultDirPath, outputFileName)); err != nil {
+				logger.Error(fmt.Sprintf("Failed to copy DANE validation result file: %s", err))
+			}
+		}()
 	}
 
 	result, err := runFireFoxHAR(opts)
@@ -616,7 +640,10 @@ func main() {
 			pcapSuffix := "-" + generateMeasurementID(record, *cache, *dane)
 			pcapOpts := newPcapOptions(outPutDir, pcapSuffix)
 
-			opts := newCommandOptions(letsdaneDockerOpts, letsdaneOpts, HARDockerOpts, HAROpts, unboundDockerOpts, pcapOpts, *cache)
+			DANEValidationResultSuffix := "-" + generateMeasurementID(record, *cache, *dane)
+			DANEValidationResultOpts := NewDANEValidationResultOpts(outPutDir, DANEValidationResultSuffix)
+
+			opts := newCommandOptions(letsdaneDockerOpts, letsdaneOpts, HARDockerOpts, HAROpts, unboundDockerOpts, pcapOpts, DANEValidationResultOpts, *cache)
 
 			// collect HAR file
 			content, err := collectHAR(opts)

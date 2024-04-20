@@ -1,0 +1,23 @@
+Host,DANE Validated,Error
+www.torproject.org,true,
+www.torproject.org,true,
+www.torproject.org,true,
+www.torproject.org,true,
+www.torproject.org,true,
+contile.services.mozilla.com,false,tunnel established without DANE validation
+contile-images.services.mozilla.com,false,tunnel established without DANE validation
+www.torproject.org,true,
+www.torproject.org,true,
+www.torproject.org,true,
+www.torproject.org,true,
+www.torproject.org,true,
+www.torproject.org,true,
+push.services.mozilla.com,false,tunnel established without DANE validation
+push.services.mozilla.com,false,tunnel established without DANE validation
+incoming.telemetry.mozilla.org,false,tunnel established without DANE validation
+contile.services.mozilla.com,false,tunnel established without DANE validation
+incoming.telemetry.mozilla.org,false,tunnel established without DANE validation
+push.services.mozilla.com,false,tunnel established without DANE validation
+push.services.mozilla.com,false,tunnel established without DANE validation
+incoming.telemetry.mozilla.org,false,tunnel established without DANE validation
+contile-images.services.mozilla.com,false,tunnel established without DANE validation
