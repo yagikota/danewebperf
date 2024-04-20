@@ -17,7 +17,7 @@ prepare_docker_images() {
 	docker build -t "$unbound_no_cache_image" -f Dockerfile.unbound-without-cache .
 	cd "$OLDPWD"
 
-	echo "Building firefox docker image..."
+	echo "Building letsdane docker image..."
 	cd "$firefox_har_letsdane_dir"
 	docker build -t "$letsdane_image" -f Dockerfile.letsdane .
 	cd "$OLDPWD"
