@@ -1,12 +1,12 @@
 #!/bin/bash
 
 prepare_docker_images() {
-	unbound_dir="pageloadtime/docker/unbound"
+	unbound_dir="docker/unbound"
 	unbound_cache_image="unbound:with-cache"
 	unbound_no_cache_image="unbound:without-cache"
-	firefox_har_letsdane_dir="pageloadtime/docker/firefox/letsdane"
+	firefox_har_letsdane_dir="docker/firefox/letsdane"
 	letsdane_image="letsdane"
-	firefox_har_dir="pageloadtime/docker/firefox"
+	firefox_har_dir="docker/firefox"
 	firefox_har_image="firefox"
 
 	echo "Building docker images..."
