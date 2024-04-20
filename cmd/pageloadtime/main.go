@@ -41,7 +41,7 @@ const (
 	letsdanePcapFilePath = "/captured/letsdane.pcap"
 
 	// DANE validation result file path in the docker container
-	letsdaneDANEValidationResultFilePath = "/dane/cmd/letsdane/result.csv"
+	letsdaneDANEValidationResultFilePath = "/dane/cmd/letsdane/dane_validation_results.csv"
 
 	// Measurement patterns
 	withoutCacheWithoutDane measurementPattern = "without-cache-without-dane" // No cache, no DANE

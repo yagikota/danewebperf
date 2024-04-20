@@ -332,7 +332,7 @@ func main() {
 	server := &http.Server{Addr: *addr, Handler: handler}
 
 	go func() {
-		exportedFile := "letsdane.csv"
+		exportedFile := "dane_validation_results.csv"
 		file, err := os.Create(exportedFile)
 		if err != nil {
 			log.Fatalf("failed to create export file: %v", err)
