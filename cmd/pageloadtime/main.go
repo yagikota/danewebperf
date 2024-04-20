@@ -33,7 +33,7 @@ const (
 	unboundWithCacheImageName    = "unbound:with-cache"
 	unboundWithoutCacheImageName = "unbound:without-cache"
 	letsdaneImageName            = "letsdane:latest"
-	firefoxHARImageName          = "firefox-har:latest"
+	firefoxHARImageName          = "firefox:latest"
 
 	// pcap file path in the docker container
 	firefoxPcapFilePath  = "/captured/firefox.pcap"
