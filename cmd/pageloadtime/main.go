@@ -634,7 +634,7 @@ func main() {
 				letsdaneOpts = newLetsdaneOptions(resolverIP)
 				proxyHost = letsdaneContainerName
 			}
-			firefoxHARContainerName := strings.Join([]string{"firefox-har", generateMeasurementID(record, *cache, *dane)}, "-")
+			firefoxHARContainerName := strings.Join([]string{"firefox", generateMeasurementID(record, *cache, *dane)}, "-")
 			HARDockerOpts := newDockerRunOptions(firefoxHARImageName, network, firefoxHARContainerName)
 			HAROpts := newFireFoxHAROptions("https://"+record.Domain, resolverIP, proxyHost, *dane)
 			pcapSuffix := "-" + generateMeasurementID(record, *cache, *dane)
