@@ -8,7 +8,7 @@ cd cmd/pageloadtime
 go build -o pageloadtime
 
 # this is dataset
-inputCSV=../../dataset/hall-of-flame/hall-of-flame-websites-tlsa-usage3.csv
+inputCSV=../../dataset/hall-of-flame-websites-tlsa-usage3.csv
 
 mkdir -p ../../result/pageloadtime/${measurementID}
 
