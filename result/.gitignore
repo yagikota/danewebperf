@@ -1,3 +1,4 @@
-# this .gitignore file allows the empty directory can be pushed to github
 *
 !.gitignore
+!pageloadtime
+!pageloadtime/s3-pageload-csv-copy.sh

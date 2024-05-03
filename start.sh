@@ -7,7 +7,7 @@ concurrency=$3
 cd cmd/pageloadtime
 go build -o pageloadtime
 
-# this is dataset
+# DataSet
 inputCSV=../../dataset/hall-of-flame-websites-tlsa-usage3.csv
 
 mkdir -p ../../result/pageloadtime/${measurementID}
