@@ -341,6 +341,7 @@ func main() {
 
 		result = append(result, *resultRecord)
 	}
+
 	if err := exportResultAsCSV(result, *outPutFilePath); err != nil {
 		logger.Error(fmt.Sprintf("unable to export result as csv, %v", err))
 	}
