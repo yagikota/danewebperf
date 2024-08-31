@@ -1,0 +1,13 @@
+FROM secns/unbound:1.19.1
+
+COPY unbound.conf /usr/local/etc/unbound/unbound.conf
+COPY ./start-without-cache.sh /start-without-cache.sh
+RUN chmod +x /start-without-cache.sh
+
+# Install tcpdump
+RUN apt-get update && apt-get install -y tcpdump
+# Create a directory for captured files
+RUN mkdir /captured
+
+# This overrides the default CMD from the base image
+CMD [ "/start-without-cache.sh" ]
