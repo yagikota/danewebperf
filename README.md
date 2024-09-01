@@ -1,6 +1,10 @@
 # DANEWebPerf
 
-DANEWebPerf is a tool developed to measure the impact of DNS-based Authentication of Named Entities (DANE) on webpage load times. For more information about DANEWebPerf, check out the "Impact of DANE on Webpage Load Time" appearing at [CNSM 2024](http://www.cnsm-conf.org/2024/).
+DANEWebPerf is a tool developed to measure the impact of DNS-based Authentication of Named Entities (DANE) on webpage load times.
+
+If you use this code in your research or project, please cite the following paper:
+K. Yagi, K. Isobe, D. Kondo, and H. Tode, ''Impact of DANE on Webpage Load Time,'' in [*Proc. the 20th International Conference on Network and Service Management (CNSM)*, 2024.](http://www.cnsm-conf.org/2024/) (Accepted)
+
 
 ## Overview
 
