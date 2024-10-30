@@ -4,7 +4,7 @@ DANEWebPerf is a tool developed to measure the impact of DNS-based Authenticatio
 
 If you use this code in your research or project, please cite the following paper:
 
-K. Yagi, K. Isobe, D. Kondo, and H. Tode, ''Impact of DANE on Webpage Load Time,'' in [*Proc. the 20th International Conference on Network and Service Management (CNSM)*, 2024.](http://www.cnsm-conf.org/2024/) (Accepted)
+K. Yagi, K. Isobe, D. Kondo, and H. Tode, ''[Impact of DANE on Webpage Load Time](https://opendl.ifip-tc6.org/db/conf/cnsm/cnsm2024/1571050403.pdf),'' in [*Proc. the 20th International Conference on Network and Service Management (CNSM)*, 2024.](http://www.cnsm-conf.org/2024/) (Accepted)
 
 
 ## Overview
