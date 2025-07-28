@@ -69,7 +69,7 @@ a DNS query is sent to the Unbound container to likewise
 access the same website. Thus, the Firefox container can
 use the DNS cache, and the webpage load time with the
 container is obtained
-  ![scenario](./docs/img/measurement-scenario-with-cache-with-dane.png)
+  ![scenario4](./docs/img/measurement-scenario-with-cache-with-dane.png)
 
 ## Usage
 
