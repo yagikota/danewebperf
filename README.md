@@ -33,7 +33,7 @@ not used. It assumes that the user accesses infrequently
 accessed websites via conventional web browsing. The
 Firefox container sends a DNS query to the Unbound
 container to access the desired website.
-  ![scenario1](./docs/img/scenario1.png)
+  ![scenario1](./docs/img/measurement-scenario-without-cache-without-dane.png)
 
 - (w/o DNS cache, w/ DANE)
   - In this scenario, DANE is used but the DNS cache
@@ -41,7 +41,7 @@ disabled. It assumes that the user accesses infrequently accessed websites when 
 fox container uses the Let’s DANE container as a proxy
 and sends a DNS query to the Unbound container to
 access the desired website.
-  ![scenario1](./docs/img/scenario2.png)
+  ![scenario2](./docs/img/measurement-scenario-without-cache-with-dane.png)
 - (w/ DNS cache, w/o DANE)
   - In this scenario, the DNS cache is enabled and DANE
 is not used. It assumes a case wherein a frequently
@@ -54,7 +54,7 @@ sends a DNS query to the Unbound container to likewise
 access the same website. Thus, the Firefox container can
 use the DNS cache, and the webpage load time with the
 container is obtained.
-  ![scenario1](./docs/img/scenario3.png)
+  ![scenario3](./docs/img/measurement-scenario-with-cache-without-dane.png)
 
 - (w/ DNS cache, w/ DANE)
   - In this scenario, both DANE and the DNS cache are
@@ -69,7 +69,7 @@ a DNS query is sent to the Unbound container to likewise
 access the same website. Thus, the Firefox container can
 use the DNS cache, and the webpage load time with the
 container is obtained
-  ![scenario1](./docs/img/scenario4.png)
+  ![scenario](./docs/img/measurement-scenario-with-cache-with-dane.png)
 
 ## Usage
 
